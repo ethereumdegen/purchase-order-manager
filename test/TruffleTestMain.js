@@ -152,7 +152,7 @@ it("approve and call purchase order ", async function () {
     var addressTo = tokenContract.address
 
     var tokens = 0
-    var borderNonce = 0x0
+    var borderNonce = 0
     var brecipientAddress = test_account.address
 
     var borderHash = await purchaseOrderHelper.getOrderHash(addressFrom,brecipientAddress,tokens,borderNonce )
@@ -179,7 +179,7 @@ it("approve and call purchase order ", async function () {
                 "type": "bytes"
               }
             ]
-        }, [orderContract.address, 0 * 10^8, callData ]);
+        }, [orderContract.address, 0 , callData ]);
 
 
     try{

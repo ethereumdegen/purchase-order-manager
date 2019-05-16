@@ -9,10 +9,10 @@ module.exports = function(deployer) {
 
 
   return deployer.deploy(_0xBitcoinToken).then(function(){
-    console.log('deploy 1 ')
+    console.log('deploy 1 ', _0xBitcoinToken.address)
 
-    return deployer.deploy(PurchaseOrderManager).then(function(){
-      console.log('deploy 2 ')
+    return deployer.deploy(PurchaseOrderManager, _0xBitcoinToken.address).then(function(){
+      console.log('deploy 2 ', PurchaseOrderManager.address)
 
 
 

@@ -43,8 +43,8 @@ contract PurchaseOrderManager{
       bool orderFulfilled;
    }
 
-    constructor( ) public  {
-        masterTokenAddress = 0xB6eD7644C69416d67B522e20bC294A9a9B405B31;
+    constructor( address tokenAddress) public  {
+        masterTokenAddress = tokenAddress;
     }
 
     /**
@@ -83,7 +83,7 @@ contract PurchaseOrderManager{
          Receive approval from ApproveAndCall() to claim a nametag token.
 
        */
-       function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public returns (bool success) {
+      function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public returns (bool success) {
 
         require(token == masterTokenAddress);
 
@@ -110,6 +110,42 @@ contract PurchaseOrderManager{
           return true;
 
        }
+
+    /*  function testreceiveApproval(address from, uint256 tokens, address token, bytes memory data) public returns (bool) {
+        require(token == masterTokenAddress);
+
+        bytes32 borderHash;
+        uint256 borderNonce;
+        bytes32 brecipientAddress;
+
+
+        // Divide the data into variables
+           assembly {
+             borderHash := mload(add(data, 32))
+             borderNonce := mload(add(data, 64))
+             brecipientAddress := mload(add(data, 96))
+           }
+
+
+         bytes32 orderHash = bytes32(borderHash);
+         uint256 orderNonce = uint256(borderNonce);
+         address recipientAddress = address(uint160(uint256(brecipientAddress)));
+
+         require(tokens == 0);
+         require(orderNonce == 0x0);
+         require(recipientAddress == address(0x087964Cd8b33Ea47C01fBe48b70113cE93481e01));
+         require(from == address(0x087964Cd8b33Ea47C01fBe48b70113cE93481e01));
+
+
+         //need predicted orderhash to work
+        bytes32 predictedOrderHash = keccak256(abi.encodePacked( from, recipientAddress, tokens, orderNonce ));
+        require(predictedOrderHash == orderHash);
+
+        require(_purchaseOrder( from, recipientAddress, tokens, orderNonce, orderHash     ));
+
+
+         return true;
+      }*/
 
 
 
