@@ -4,7 +4,7 @@ pragma solidity ^0.5.0;
 
 /**------------------------------------
 
-A simple purchase order management smart contract.  This allows 0xBTC users to transfer tokens to another recipient, but do it in such a way that an order number and deterministic order hash are permanently saved on the blockchain for a simple 'proof of purchase' receipt of the transaction.
+A simple purchase order management smart contract.  This allows users to transfer tokens to another recipient, but do it in such a way that an order number and deterministic order hash are permanently saved on the blockchain for a simple 'proof of purchase' receipt of the transaction.
 
 
 ------------------------------------*/
@@ -80,7 +80,7 @@ contract PurchaseOrderManager{
       }
 
        /*
-         Receive approval from ApproveAndCall() to claim a nametag token.
+         Receive approval from ApproveAndCall() to send funds while fulfilling the order hash.
 
        */
       function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public returns (bool success) {
@@ -111,41 +111,6 @@ contract PurchaseOrderManager{
 
        }
 
-    /*  function testreceiveApproval(address from, uint256 tokens, address token, bytes memory data) public returns (bool) {
-        require(token == masterTokenAddress);
-
-        bytes32 borderHash;
-        uint256 borderNonce;
-        bytes32 brecipientAddress;
-
-
-        // Divide the data into variables
-           assembly {
-             borderHash := mload(add(data, 32))
-             borderNonce := mload(add(data, 64))
-             brecipientAddress := mload(add(data, 96))
-           }
-
-
-         bytes32 orderHash = bytes32(borderHash);
-         uint256 orderNonce = uint256(borderNonce);
-         address recipientAddress = address(uint160(uint256(brecipientAddress)));
-
-         require(tokens == 0);
-         require(orderNonce == 0x0);
-         require(recipientAddress == address(0x087964Cd8b33Ea47C01fBe48b70113cE93481e01));
-         require(from == address(0x087964Cd8b33Ea47C01fBe48b70113cE93481e01));
-
-
-         //need predicted orderhash to work
-        bytes32 predictedOrderHash = keccak256(abi.encodePacked( from, recipientAddress, tokens, orderNonce ));
-        require(predictedOrderHash == orderHash);
-
-        require(_purchaseOrder( from, recipientAddress, tokens, orderNonce, orderHash     ));
-
-
-         return true;
-      }*/
 
 
 
