@@ -73,7 +73,7 @@ module.exports =  {
 
     console.log('collecting data from smartcontract');
 
-   
+
 
     var lastRewardAmountString = await tokenContract.lastRewardAmount.call()  ;
     var lastRewardAmount = parseInt(lastRewardAmountString)

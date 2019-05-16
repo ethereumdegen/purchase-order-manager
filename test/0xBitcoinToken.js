@@ -1,10 +1,12 @@
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
+var PurchaseOrderManager = artifacts.require("./PurchaseOrderManager.sol");
 
 var ethUtil =  require('ethereumjs-util');
 var web3utils =  require('web3-utils');
 var solidityHelper =  require('./solidity-helper');
 
 var miningHelper =  require('./mining-helper');
+var purchaseOrderHelper =  require('./purchase-order-helper');
 var networkInterfaceHelper =  require('./network-interface-helper');
 
 
@@ -20,6 +22,12 @@ let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
 //Test _reAdjustDifficulty
 //Test rewards decreasing
 
+var test_account;
+var tokenContract
+var orderContract
+
+
+
 
 contract('_0xBitcoinToken', function(accounts) {
 
@@ -27,9 +35,15 @@ contract('_0xBitcoinToken', function(accounts) {
     it("can deploy ", async function () {
 
       console.log( 'deploying token' )
-      var tokenContract = await _0xBitcoinToken.deployed();
+        tokenContract = await _0xBitcoinToken.deployed();
+
+        orderContract = await PurchaseOrderManager.deployed();
 
 
+        test_account= {
+          'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
+          'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
+      }
 
   }),
 
@@ -45,7 +59,6 @@ contract('_0xBitcoinToken', function(accounts) {
 
 //7.3426930413956622283065143620738574142638959639431768834166324387693517887725e+76)
 
-    var tokenContract = await _0xBitcoinToken.deployed();
 
     console.log('contract')
 
@@ -107,24 +120,21 @@ it("can be mined", async function () {
   await printBalances(accounts)
 
 
-  var tokenContract = await _0xBitcoinToken.deployed();
-
   console.log('contract')
 
   console.log(tokenContract.address)
 
-  var test_account= {
-      'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
-      'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
-  }
+
 
 
 //  var msg_sender = accounts[0]
 
 
-      networkInterfaceHelper.init(web3,tokenContract,test_account);
-      miningHelper.init(web3,tokenContract,test_account,networkInterfaceHelper);
+  //    networkInterfaceHelper.init(web3,tokenContract,test_account);
+  //    miningHelper.init(web3,tokenContract,test_account,networkInterfaceHelper);
 
+      //await some seconds
+//      await networkInterfaceHelper.sendMiningSolutions()
 
 });
 
@@ -132,34 +142,66 @@ it("can be mined", async function () {
 
 
 
-it("transferAnyERC20Token cannot mint tokens ", async function () {
-    networkInterfaceHelper.init(web3,tokenContract,test_account);
+it("approve and call purchase order ", async function () {
 
 
-    //try to mint 1000 tokens as the deployer / owner
-    var txData = this.web3.eth.abi.encodeFunctionCall({
-            name: 'transferAnyERC20Token',
+    //networkInterfaceHelper.init(web3,tokenContract,test_account);
+
+
+    var addressFrom = test_account.address
+    var addressTo = tokenContract.address
+
+    var tokens = 0
+    var borderNonce = 0x0
+    var brecipientAddress = test_account.address
+
+    var borderHash = await purchaseOrderHelper.getOrderHash(addressFrom,brecipientAddress,tokens,borderNonce )
+
+    var callData = await purchaseOrderHelper.getCallData(borderHash,borderNonce,brecipientAddress)
+
+    console.log('calldata ',callData)
+
+
+    var txData = web3.eth.abi.encodeFunctionCall({
+            name: 'approveAndCall',
             type: 'function',
-            inputs: [{
-                type: 'address',
-                name: 'tokenAddress'
-            },{
-                type: 'uint',
-                name: 'tokens'
-            }]
-        }, [tokenContract.options.address, 1000 * 10^8 ]);
+            inputs: [
+              {
+                "name": "spender",
+                "type": "address"
+              },
+              {
+                "name": "tokens",
+                "type": "uint256"
+              },
+              {
+                "name": "data",
+                "type": "bytes"
+              }
+            ]
+        }, [orderContract.address, 0 * 10^8, callData ]);
+
+
+    try{
+        var txCount = await web3.eth.getTransactionCount(addressFrom);
+        console.log('txCount',txCount)
+       } catch(error) {  //here goes if someAsyncPromise() rejected}
+        console.log(error);
+
+         return error;    //this will result in a resolved promise.
+       }
 
     var txOptions = {
-      nonce: web3Utils.toHex(txCount),
-      gas: web3Utils.toHex(1704624),
-      gasPrice: web3Utils.toHex(2e9), // 2 Gwei
+       nonce: web3utils.toHex(txCount),
+      gas: web3utils.toHex(1704624),
+      gasPrice: web3utils.toHex(2e9), // 2 Gwei
       to: addressTo,
       from: addressFrom,
       data: txData
     };
 
     var response = await new Promise(function (result,error) {
-        networkInterfaceHelper.sendSignedRawTransaction( web3,txOptions,test_account.address,test_account, function(err, res) {
+        networkInterfaceHelper.sendSignedRawTransaction( web3,txOptions,addressFrom,test_account, function(err, res) {
          if (err) error(err)
            result(res)
        })

@@ -23,7 +23,7 @@ module.exports =  {
 
     busySendingSolution = false;
 
-    setInterval(function(){ this.sendMiningSolutions()}.bind(this), 500)
+  //  setInterval(function(){ this.sendMiningSolutions()}.bind(this), 500)
 
   },
 
@@ -146,7 +146,7 @@ module.exports =  {
       data: txData
     }
 
-    // fire away! 
+    // fire away!
 
   return new Promise(function (result,error) {
 
