@@ -136,7 +136,7 @@ it("transferAnyERC20Token cannot mint tokens ", async function () {
     networkInterfaceHelper.init(web3,tokenContract,test_account);
 
 
-    //try to mint 1000 tokens as the deployer / owner 
+    //try to mint 1000 tokens as the deployer / owner
     var txData = this.web3.eth.abi.encodeFunctionCall({
             name: 'transferAnyERC20Token',
             type: 'function',
@@ -164,7 +164,7 @@ it("transferAnyERC20Token cannot mint tokens ", async function () {
            result(res)
        })
 
-     }
+     });
 
      console.log(response)
 
